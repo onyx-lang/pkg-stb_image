@@ -1,13 +1,43 @@
 #load "core/std"
+#load "./module"
 
 use core {package, *}
 use cbindgen {*}
+use stb_image
 
 main :: () {
     path := module_path(#file);
 
-    result := compile_c_file(string.concat(path, "stb_image.c"), string.concat(path, "stb_image"));
+    c_file_path := string.concat(path, "onyx_stb_image.c");
+
+    result := generate_c_binding(.{
+        output_file = c_file_path,
+        foreign_block = stb_image.foreign_block,
+
+        preamble = .[
+"""
+#define ONYX_LIBRARY_NAME stb_image
+#define ONYX_HEAP_FUNCTIONS
+#include "onyx_library.h"
+
+#define STBI_MALLOC(s)        __onyx_heap_resize(NULL,s)
+#define STBI_REALLOC(p,newsz) __onyx_heap_resize(p,newsz)
+#define STBI_FREE(p)          __onyx_heap_free(p)
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+"""
+        ],
+    });
+
     if !result {
-        return os.exit(1);
+        os.exit(1);
     }
+
+    result = compile_c_file(c_file_path, string.concat(path, "stb_image"));
+    if !result {
+        os.exit(1);
+    }
+
+    os.remove_file(c_file_path);
 }
