@@ -20,10 +20,6 @@ main :: () {
 #define ONYX_HEAP_FUNCTIONS
 #include "onyx_library.h"
 
-#define STBI_MALLOC(s)        __onyx_heap_resize(NULL,s)
-#define STBI_REALLOC(p,newsz) __onyx_heap_resize(p,newsz)
-#define STBI_FREE(p)          __onyx_heap_free(p)
-
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 """
