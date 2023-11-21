@@ -3,7 +3,7 @@ package {
     author "Brendan Hansen" 
     url "git://onyxlang.io/repo/stb_image" 
     description "stb_image.h binding for Onyx (very incomplete)" 
-    version "0.0.6" 
+    version "0.0.7" 
 }
 
 config {
