@@ -1,0 +1,11 @@
+use core {*}
+
+main :: () {
+    os.command()
+    |> os.Command.path("clang")
+    |> os.Command.args(.["--target=wasm32-none"])
+    |> os.Command.args(.["-I", "fake_libc"])
+    |> os.Command.args(.["-o", "stb_image.wasm"])
+    |> os.Command.args(.["-c", "stb_image.c"])
+    |> os.Command.run()
+}
