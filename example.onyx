@@ -1,0 +1,20 @@
+#load "module"
+
+use stb_image
+use core {printf}
+
+main :: () {
+    pixels, w, h, channels := stb_image.load_image("test.png")
+
+    if pixels == null {
+        printf("decode failed\n");
+        return;
+    }
+
+    printf("{}x{} channels {}\n", w, h, channels);
+    for i in 0 .. w * h * channels {
+        printf("{} ", cast(i32) pixels[i]);
+    }
+    printf("\n");
+    stb_image.free_image(pixels);
+}

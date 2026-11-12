@@ -1,28 +1,33 @@
 package stb_image
 
-use core { cptr }
+use core { cptr, os, libc }
 use runtime
 
-#if #defined(runtime.Generated_Foreign_Info) {
-    foreign_block :: __foreign_block
-} else {
-    #library "stb_image"
+#local {
+    #object "stb_image.wasm" {
+        stbi_load_from_memory :: (buffer: rawptr, len: i32, x, y, channels: &i32, desired: i32) -> [&] u8 ---
+        stbi_image_free :: (data: [&] u8) -> void ---
+
+        #provide { #namespace libc }
+    }
 }
 
-#local __foreign_block :: #foreign "stb_image" {
-    stbi_load                 :: (filename: cstr, width: ^i32, height: ^i32, channels: ^i32, desired_channels: i32) -> cptr(u8) ---
-    stbi_load_from_memory     :: (buffer: [] u8, width: ^i32, height: ^i32, channels: ^i32, desired_channels: i32) -> cptr(u8) ---
-    stbi_load_gif_from_memory :: (buffer: [] u8, delays: ^cptr(i32), width: ^i32, height: ^i32, frames: ^i32, comp: ^i32, req_comp: i32) -> cptr(u8) ---
+#if runtime.platform.Supports_Files {
+    load_image :: (path: str, desired_channels := 0) -> (pixels: [&] u8, x: i32, y: i32, channels: i32) {
+        file_data := os.get_contents(path)
+        defer delete(&file_data)
 
-    stbi_image_free :: (image_data: cptr(u8)) -> void ---
+        pixels, x, y, channels = load_from_memory(file_data, desired_channels)
+        return
+    }
 }
 
-stbi_load_and_copy :: (filename: cstr, width, height, channels: &i32, desired_channels: i32) -> [&] u8 {
-    pixels := stbi_load(filename, width, height, channels, desired_channels);
-    ret    := make([] u8, *width * *height * *channels);
-    pixels->read(ret);
+load_from_memory :: (buf: [] u8, desired_channels := 0) -> (pixels: [&] u8, x: i32, y: i32, channels: i32) {
+    pixels = stbi_load_from_memory(buf.data, buf.length, &x, &y, &channels, desired_channels)
+    return
+}
 
-    stbi_image_free(pixels);
-    return ret.data;
+free_image :: (data: rawptr) {
+    stbi_image_free(data)
 }
 
