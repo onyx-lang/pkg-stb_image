@@ -3,17 +3,11 @@ package {
     author "Brendan Hansen" 
     url "git://onyxlang.io/repo/stb_image" 
     description "stb_image.h binding for Onyx" 
-    version "0.0.8" 
+    version "0.0.9" 
 }
 
 config {
     dependency_source_path "./lib" 
     dependency_binary_path "./bin" 
 }
-
-// This is not necessary anymore as stb_image is now a WASM object file
-// native {
-//     library "stb_image" 
-//     build "onyx run --generate-foreign-info build" 
-// }
 
